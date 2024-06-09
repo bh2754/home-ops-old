@@ -60,7 +60,7 @@ spec:
         nodes:
           - name: k8s-master1
             devices:
-              - name: "/dev/sdb"
+              - name: "/dev/sda"
           - name: k8s-master2
             devices:
               - name: "/dev/sdb"
@@ -69,7 +69,7 @@ spec:
               - name: "/dev/sdb"
           - name: k8s-worker1
             devices:
-              - name: "/dev/sdb"
+              - name: "/dev/sda"
           - name: k8s-worker2
             devices:
               - name: "/dev/sdb"
