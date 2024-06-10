@@ -44,8 +44,8 @@ spec:
           tag: v3.38.0@sha256:5522794f5cce6d84bc7f06b1e3a3b836ede9100c64aec94543cb503bb2ecb72f
         env:
           - name: VPN_SERVICE_PROVIDER
-#           value: custom
-            value: mullvad
+            value: custom
+#           value: mullvad
           - name: VPN_TYPE
             value: wireguard
           - name: VPN_INTERFACE
@@ -66,8 +66,8 @@ spec:
 #           value: 1320
         envFrom:
           - secretRef:
-              name: mullvad-secret
-#             name: nord-secret
+#             name: mullvad-secret
+              name: nord-secret
         securityContext:
           capabilities:
             add: ["NET_ADMIN"]
