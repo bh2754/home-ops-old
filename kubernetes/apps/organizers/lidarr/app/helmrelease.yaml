@@ -1,0 +1,129 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app lidarr
+  namespace: organizers
+spec:
+  interval: 5m
+  chart:
+    spec:
+      # renovate: registryUrl=https://k8s-at-home.com/charts/
+      chart: app-template
+      version: 2.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 1m
+  install:
+    createNamespace: true
+    remediation:
+      retries: 5
+  upgrade:
+    remediation:
+      retries: 5
+  dependsOn:
+    - name: onepassword-connect
+      namespace: external-secrets
+    - name: ingress-nginx-external
+      namespace: network
+    - name: authelia
+      namespace: security
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+  values:
+    controllers:
+      main:
+        type: deployment
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          annotations:
+            setGateway: "true"
+          securityContect:
+            runAsUser: 568
+            runAsGroup: 100 # was 568 before app template upgrade
+            fsGroup: 100
+            fsGroupChangePolicy: "OnRootMismatch"
+        containers:
+          main:
+            image:
+#             repository: ghcr.io/bh2754/lidarr-nightly
+              repository: ghcr.io/onedr0p/lidarr-develop
+#             tag: 2.2.4.4100@sha256:5c396ec68eaae3f097ab43621f20115feb3c6f0f4742796f6bf26ee9c2939616
+              tag: 2.3.3.4204@sha256:655cd2fc2b7884da6d864dd67ca94269fde1dce07ef70b5254d7eba831422383
+              pullPolicy: IfNotPresent
+            env:
+              TZ: ${TZ}
+              LIDARR__INSTANCE_NAME: Lidarr
+              LIDARR__PORT: &port 8686
+              LIDARR__LOG_LEVEL: info
+              LIDARR__AUTHENTICATION_METHOD: External
+              LIDARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
+            envFrom:
+              - secretRef:
+                  name: lidarr-secret
+            resources:
+              requests:
+                cpu: 10m
+                memory: 1102M
+                ephemeral-storage: "2Gi"
+              limits:
+                memory: 1428M
+                ephemeral-storage: "4Gi"
+    service:
+      main:
+        ports:
+          http:
+            port: *port
+    metrics:
+      enabled: false
+    persistence:
+      config:
+        enabled: true
+        existingClaim: lidarr-config-v1
+      media:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER}
+        path: ${NFS_MUSIC}
+      downloads:
+        enabled: true
+        type: nfs
+        server: ${NFS_SERVER}
+        path: /volume1/Download
+    ingress:
+      main:
+        enabled: true
+        className: "external"
+        annotations:
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+          nginx.ingress.kubernetes.io/auth-method: GET
+          nginx.ingress.kubernetes.io/auth-url: http://authelia.security.svc.cluster.local/api/verify
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.bharris.vip?rm=$request_method
+          nginx.ingress.kubernetes.io/auth-response-headers: Remote-User,Remote-Name,Remote-Groups,Remote-Email
+          nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+           proxy_set_header Accept-Encoding "";
+           sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.${SECRET_DOMAIN}/css/base/lidarr/hotline.css"></head>';
+            sub_filter_once on;
+        hosts:
+          - host: &host "lidarr.${SECRET_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  name: main
+                  prot: http
+        tls:
+          - hosts:
+              - *host
+    resources:
+      requests:
+        cpu: 10m
+        memory: 1102M
+        ephemeral-storage: "2Gi"
+      limits:
+        memory: 1428M
+        ephemeral-storage: "4Gi"
