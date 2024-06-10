@@ -24,11 +24,6 @@ metadata:
   labels:
     substitution.flux.home.arpa/enabled: "true"
 spec:
-  dependsOn:
-    - name: cloudnative-pg-app
-    - name: cluster-apps-kyverno
-    - name: cluster-apps-onepassword-connect
-    - name: cluster-rook-ceph-cluster
   path: ./kubernetes/apps/databases/cloudnative-pg/cluster
   prune: true
   sourceRef:
