@@ -9,7 +9,7 @@ metadata:
     substitution.flux.home.arpa/enabled: "true"
 spec:
   dependsOn:
-    - name: nepassword-connect
+    - name: onepassword-connect
     - name: pod-gateway
     - name: rook-ceph-cluster
   path: ./kubernetes/apps/organizers/radarr/app
