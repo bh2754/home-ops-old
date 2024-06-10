@@ -14,5 +14,6 @@ resources:
   - ./jetstack.yaml
   - ./metrics-server.yaml
   - ./openebs.yaml
+  - ./piraeus.yaml
   - ./rook-ceph.yaml
   - ./stakater.yaml
