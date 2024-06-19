@@ -7,8 +7,6 @@ metadata:
   labels:
     substitution.flux.home.arpa/enabled: "true"
 spec:
-  dependsOn:
-    - name: cluster-rook-ceph-cluster
   interval: 10m
   path: "./kubernetes/apps/media/overseerr/app"
   prune: true
