@@ -41,7 +41,7 @@ spec:
         type: gluetun
         image:
           repository: ghcr.io/qdm12/gluetun
-          tag: v3.38.0@sha256:5522794f5cce6d84bc7f06b1e3a3b836ede9100c64aec94543cb503bb2ecb72f
+          tag: v3.37.0@sha256:ba9688ff9abaf73bbc0b257be547b51a097ca74324fedddeeb709732c2692eef
         env:
           - name: VPN_SERVICE_PROVIDER
 #           value: custom
@@ -60,8 +60,8 @@ spec:
             value: debug
           - name: VPN_ENDPOINT_PORT
             value: 51820
-          - name: DNS_ADDRESS
-            value: 1.1.1.1
+#         - name: DNS_ADDRESS
+#           value: 1.1.1.1
 #           value: 192.168.60.1
 #         - name: WIREGUARD_MTU
 #           value: 1320
@@ -72,25 +72,25 @@ spec:
         securityContext:
           capabilities:
             add: ["NET_ADMIN"]
-        networkPolicy:
-          enabled: true
-          egress:
-            - to:
-                - ipBlock:
-                    cidr: 0.0.0.0/0
-              ports:
-                - port: 51820
-                  protocol: UDP
-            - to:
-                - namespaceSelector: {}
-    publicPorts:
-      - IP: 10
-        hostname: qbittorrent-vpn-0
-        ports:
-          - port: 56202
-            type: udp
-          - port: 56202
-            type: tcp
+#       networkPolicy:
+#         enabled: true
+#         egress:
+#           - to:
+#               - ipBlock:
+#                   cidr: 0.0.0.0/0
+#             ports:
+#               - port: 51820
+#                 protocol: UDP
+#           - to:
+#               - namespaceSelector: {}
+#   publicPorts:
+#     - IP: 10
+#       hostname: qbittorrent-vpn-0
+#       ports:
+#         - port: 56202
+#           type: udp
+#         - port: 56202
+#           type: tcp
 
     routed_namespaces:
       - downloaders
@@ -103,7 +103,7 @@ spec:
       VPN_BLOCK_OTHER_TRAFFIC: "true"
       VPN_TRAFFIC_PORT: "51820"
       DNS_LOCAL_CIDRS: "local bharris.vip bharris.co"
-      NOT_ROUTED_TO_GATEWAY_CIDRS: "10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"
+      NOT_ROUTED_TO_GATEWAY_CIDRS: "10.0.0.0/8 192.168.0.0/16"
       VPN_LOCAL_CIDRS: "10.0.0.0/8 192.168.0.0/16"
       IPTABLES_NFT: "yes"
 
