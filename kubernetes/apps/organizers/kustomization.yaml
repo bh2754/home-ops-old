@@ -6,10 +6,10 @@ resources:
 ## - ./lidarr/ks.yaml
 #  - ./mylar/ks.yaml
 #  - ./nzbhydra2/ks.yaml
-#  - ./prowlarr/ks.yaml
+   - ./prowlarr/ks.yaml
 #  - ./radarr/ks.yaml
 #  - ./readarr-audio/ks.yaml
 #  - ./readarr/ks.yaml
 ## - ./sonarr/ks.yaml
-   - ./sonarr-dev/ks.yaml
+#  - ./sonarr-dev/ks.yaml
 #  - ./whisparr/ks.yaml
