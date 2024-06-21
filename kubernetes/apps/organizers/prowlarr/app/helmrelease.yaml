@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 2.6.0
+      version: 3.2.1
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -41,7 +41,7 @@ spec:
           annotations:
             setGateway: "true"
           securityContext:
-            runAsUser: 568
+            runAsUser: 100  #568
             runAsGroup: 100   # was 568 before app template upgrade
             fsGroup: 100
             fsGroupChangePolicy: "OnRootMismatch"
@@ -57,15 +57,17 @@ spec:
               PROWLARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
               PROWLARR__APPLICATION_URL: "https://prowlarr.${SECRET_DOMAIN}"
               PROWLARR__LOG_LEVEL: info
-            envFrom:
-              - secretRef:
-                  name: prowlarr-secret
+              PROWLARR__API_KEY:
+                valueFrom:
+                  - secretKeyyRef:
+                      name: prowlarr-secret
+                      key: PROWLARR__API_KEY
             resources:
               requests:
-                cpu: 20m
-                memory: 323M
+                cpu: 18m
+                memory: 128Mi
               limits:
-                memory: 323M
+                memory: 256Mi
           netshoot:
             image:
               repository: ghcr.io/nicolaka/netshoot
@@ -74,14 +76,14 @@ spec:
             args: ["-c", "while true; do ping localhost; sleep 60;done"]
 
     service:
-      main:
+      app:
+        controller: prowlarr
         ports:
           http:
             port: *port
 
     ingress:
-      main:
-        enabled: true
+      app:
         className: "external"
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
@@ -99,7 +101,7 @@ spec:
             paths:
               - path: /
                 service:
-                  name: main
+                  identifier: app
                   port: http
         tls:
           - hosts:
