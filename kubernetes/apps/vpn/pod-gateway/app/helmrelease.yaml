@@ -32,10 +32,10 @@ spec:
     image:
       repository: ghcr.io/angelnu/pod-gateway
       tag: v1.10.0@sha256:d728eac85f750b37c96a0dafd038561ea4b8035857802be1128ea9b19c61e181
-#   DNS: 172.16.1.1
+    DNS: 172.16.1.1
     addons:
-      netshoot:
-        enabled: true
+#     netshoot:
+#       enabled: true
       vpn:
         enabled: true
         type: gluetun
