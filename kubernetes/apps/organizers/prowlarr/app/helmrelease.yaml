@@ -53,9 +53,9 @@ spec:
             env:
               PROWLARR__INSTANCE_NAME: Prowlarr
               PROWLARR__PORT: &port 80
-#             PROWLARR__AUTHENTICATION_METHOD: External
-#             PROWLARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
-#             PROWLARR__APPLICATION_URL: "https://prowlarr.${SECRET_DOMAIN}"
+              PROWLARR__AUTHENTICATION_METHOD: External
+              PROWLARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
+              PROWLARR__APPLICATION_URL: "https://prowlarr.${SECRET_DOMAIN}"
               PROWLARR__LOG_LEVEL: info
             envFrom:
               - secretRef:
