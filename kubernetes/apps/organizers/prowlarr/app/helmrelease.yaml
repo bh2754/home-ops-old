@@ -53,6 +53,9 @@ spec:
               tag: 1.18.0.4543@sha256:3b7016455028840cae468f1227560e84926c47d1d30b4f73c269704b3f97362f
             env:
               COMPlus_EnableDiagnostics: "0"
+              PROWLARR__LOG_LEVEL: info
+              PROWLARR__ANALYTICS_ENABLED: "False"
+              PROWLARR__AUTHENTICATION_METHOD: External
             envFrom:
               - secretRef:
                   name: prowlarr-secret
