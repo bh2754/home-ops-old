@@ -1,10 +1,8 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: prowlarr
-  namespace: organizers
 spec:
   interval: 30m
   chart:
@@ -16,15 +14,6 @@ spec:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-  dependsOn:
-    - name: onepassword-connect
-      namespace: external-secrets
-    - name: ingress-nginx-external
-      namespace: network
-    - name: authelia
-      namespace: security
-    - name: rook-ceph-cluster
-      namespace: rook-ceph
   values:
     controllers:
       prowlarr:
@@ -37,7 +26,7 @@ spec:
             runAsNonRoot: true
             fsGroup: 2000
             fsGroupChangePolicy: OnRootMismatch
-        containers:
+       containers:
           app:
             image:
               repository: ghcr.io/onedr0p/prowlarr-nightly
@@ -53,7 +42,7 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     name: prowlarr-secret
-                      key: api_key
+                    key: api_key
             probes:
               liveness:
                 enabled: true
@@ -76,7 +65,7 @@ spec:
               capabilities:
                 drop:
                   - ALL
-    service:
+   service:
       app:
         controller: prowlarr
         ports:
@@ -84,30 +73,16 @@ spec:
             port: *port
     ingress:
       app:
-        className: "external"
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-          nginx.ingress.kubernetes.io/auth-method: GET
-          nginx.ingress.kubernetes.io/auth-url: http://authelia.security.svc.cluster.local/api/verify
-          nginx.ingress.kubernetes.io/auth-signin: https://auth.bharris.vip?rm=$request_method
-          nginx.ingress.kubernetes.io/auth-response-headers: Remote-User,Remote-Name,Remote-Groups,Remote-Email
-          nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
-#         nginx.ingress.kubernetes.io/configuration-snippet: |
-#          proxy_set_header Accept-Encoding "";
-#          sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.${SECRET_DOMAIN}/css/base/lidarr/hotline.css"></head>';
-#           sub_filter_once on;
+        className: "internal"
+#       annotations:
+#         external-dns.alpha.kubernetes.io/target: ingress-int.bjw-s.dev
         hosts:
-          - host: &host "prowlarr.${SECRET_DOMAIN}"
+          - host: prowlarr.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
                   identifier: app
                   port: http
-        tls:
-          - hosts:
-              - *host
-
     persistence:
       config:
-        enabled: true
-        existingClaim: prowlarr-config-v1
+        existingClaim: prowlarr-config
