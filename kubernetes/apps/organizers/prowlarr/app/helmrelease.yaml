@@ -31,51 +31,59 @@ spec:
     - name: rook-ceph-cluster
       namespace: rook-ceph
   values:
+ values:
     controllers:
-      main:
-        type: deployment
+      prowlarr:
         annotations:
           reloader.stakater.com/auto: "true"
 
         pod:
-          annotations:
-            setGateway: "true"
           securityContext:
-            runAsUser: 2000 #568
-            runAsGroup: 2000   # was 568 before app template upgrade
-            fsGroup: 2000
+            runAsUser: 2000
+            runAsGroup: 2000
             runAsNonRoot: true
-            fsGroupChangePolicy: "OnRootMismatch"
+            fsGroup: 2000
+            fsGroupChangePolicy: OnRootMismatch
+
         containers:
-          main:
+          app:
             image:
               repository: ghcr.io/onedr0p/prowlarr-nightly
-              tag: 1.20.0.4570@sha256:8b3e5bd2b5c741c86f38863ada1bfa473e319822bb5f972dca89fe089cb40f6f
+              tag: 1.20.0.4570@sha256:627182d2c4260879463b73467153a019436a1e14648731670085876728737e45
             env:
+              COMPlus_EnableDiagnostics: "0"
               PROWLARR__INSTANCE_NAME: Prowlarr
-              PROWLARR__PORT: &port 80
-              PROWLARR__AUTHENTICATION_METHOD: External
-              PROWLARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
-              PROWLARR__APPLICATION_URL: "https://prowlarr.${SECRET_DOMAIN}"
+              PROWLARR__PORT: &port 9696
               PROWLARR__LOG_LEVEL: info
+              PROWLARR__ANALYTICS_ENABLED: "False"
+              PROWLARR__AUTHENTICATION_METHOD: External
               PROWLARR__API_KEY:
                 valueFrom:
-                  - secretKeyyRef:
-                      name: prowlarr-secret
+                  secretKeyRef:
+                    name: prowlarr-secret
                       key: PROWLARR__API_KEY
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
             resources:
               requests:
                 cpu: 18m
                 memory: 128Mi
               limits:
                 memory: 256Mi
-          netshoot:
-            image:
-              repository: ghcr.io/nicolaka/netshoot
-              tag: v0.13
-            command: ["/bin/bash"]
-            args: ["-c", "while true; do ping localhost; sleep 60;done"]
-
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
     service:
       app:
         controller: prowlarr
