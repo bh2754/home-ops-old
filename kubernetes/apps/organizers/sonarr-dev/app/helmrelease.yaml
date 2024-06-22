@@ -48,8 +48,8 @@ spec:
         containers:
           main:
             image:
-              repository: ghcr.io/onedr0p/sonarr
-              tag: 4.0.5.1710@sha256:a4f8524236d8a3339b48e18022e83030ffb9b66145b0d83b3b6256c76b418acb
+              repository: ghcr.io/bh2754/sonarr-develop
+              tag: 4.0.2.1408@sha256:44b2b20c4de49777423a63d6df8c577dd8ffee8c3b1b2104f73b6533e6183e51
             env:
               SONARR__INSTANCE_NAME: Sonarr
               SONARR__PORT: &port 8989
@@ -67,7 +67,7 @@ spec:
           netshoot:
             image:
               repository: ghcr.io/nicolaka/netshoot
-              tag: v0.13
+              tag: v0.12
             command: ["/bin/bash"]
             args: ["-c", "while true; do ping localhost; sleep 60;done"]
 
