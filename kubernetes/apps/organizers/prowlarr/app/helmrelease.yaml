@@ -16,7 +16,6 @@ spec:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-
   dependsOn:
     - name: onepassword-connect
       namespace: external-secrets
@@ -31,7 +30,6 @@ spec:
       prowlarr:
         annotations:
           reloader.stakater.com/auto: "true"
-
         pod:
           securityContext:
             runAsUser: 2000
@@ -39,7 +37,6 @@ spec:
             runAsNonRoot: true
             fsGroup: 2000
             fsGroupChangePolicy: OnRootMismatch
-
         containers:
           app:
             image:
@@ -84,8 +81,7 @@ spec:
         controller: prowlarr
         ports:
           http:
-            port: *port
-
+            port: 80
     ingress:
       app:
         className: "external"
