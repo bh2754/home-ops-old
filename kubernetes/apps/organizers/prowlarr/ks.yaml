@@ -20,3 +20,8 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 3m
+  postBuild:
+    substitute:
+      APP: *appname
+      APP_UID: "2000"
+      APP_GID: "2000"
