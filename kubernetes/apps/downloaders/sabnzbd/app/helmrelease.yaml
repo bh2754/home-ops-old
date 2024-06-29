@@ -39,7 +39,7 @@ spec:
           main:
             image:
               repository: ghcr.io/bh2754/sabnzbd
-              tag: 4.2.3@sha256:8af4173abbd593f96be7f603c6166f088b29ad23f6a52367e4ea5bbf4eddc8e6
+              tag: 4.3.2@sha256:6e68583024a35e168c80170cb6e6ac0650220dc9cea33ba26abc23bd67bf3e0e
               pullPolicy: IfNotPresent
             env:
               TZ: "${TZ}"
