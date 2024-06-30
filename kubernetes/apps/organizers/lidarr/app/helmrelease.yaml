@@ -43,7 +43,7 @@ spec:
           annotations:
             setGateway: "true"
           securityContect:
-            runAsUser: 568
+            runAsUser: 100
             runAsGroup: 100 # was 568 before app template upgrade
             fsGroup: 100
             fsGroupChangePolicy: "OnRootMismatch"
