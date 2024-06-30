@@ -52,7 +52,7 @@ spec:
             image:
               repository: ghcr.io/bh2754/lidarr-nightly
 #             repository: ghcr.io/onedr0p/lidarr-develop
-              tag: 2.2.4.4100@sha256:5c396ec68eaae3f097ab43621f20115feb3c6f0f4742796f6bf26ee9c2939616
+              tag: 2.4.0.4222@sha256:2dcb5a931ad89bb9b358f6cd06c7b46a6d8246c29b6461f8278e3e8fb65eec10
 #             tag: 2.3.3.4204@sha256:e8f47b8d9aa8eafcf13b0d7ec56a58596c7fea5cdc67724763086e8abab9ba5c
               pullPolicy: IfNotPresent
             env:
