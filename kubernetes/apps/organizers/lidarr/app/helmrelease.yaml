@@ -2,87 +2,89 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app lidarr
-  namespace: organizers
+  name: lidarr
 spec:
-  interval: 5m
+  interval: 30m
   chart:
     spec:
-      # renovate: registryUrl=https://k8s-at-home.com/charts/
       chart: app-template
-      version: 2.6.0
+      version: 3.2.1
       sourceRef:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-      interval: 1m
   install:
-    createNamespace: true
     remediation:
-      retries: 5
+      retries: 3
   upgrade:
+    cleanupOnFail: true
     remediation:
-      retries: 5
+      strategy: rollback
+      retries: 3
   dependsOn:
-    - name: onepassword-connect
-      namespace: external-secrets
-    - name: ingress-nginx-external
-      namespace: network
-    - name: authelia
-      namespace: security
     - name: rook-ceph-cluster
       namespace: rook-ceph
+    - name: volsync
+      namespace: volsync
   values:
     controllers:
-      main:
-        type: deployment
-        strategy: Recreate
+      lidarr:
         annotations:
           reloader.stakater.com/auto: "true"
         pod:
-          annotations:
-            setGateway: "true"
-          securityContect:
-            runAsUser: 100
-            runAsGroup: 100 # was 568 before app template upgrade
-            fsGroup: 100
-            fsGroupChangePolicy: "OnRootMismatch"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile: { type: RuntimeDefault }
         containers:
-          main:
+          app:
             image:
-              repository: ghcr.io/bh2754/lidarr-nightly
-#             repository: ghcr.io/onedr0p/lidarr-develop
-              tag: 2.4.0.4222@sha256:2dcb5a931ad89bb9b358f6cd06c7b46a6d8246c29b6461f8278e3e8fb65eec10
-#             tag: 2.3.3.4204@sha256:e8f47b8d9aa8eafcf13b0d7ec56a58596c7fea5cdc67724763086e8abab9ba5c
-              pullPolicy: IfNotPresent
+              repository: ghcr.io/onedr0p/lidarr-develop
+              tag: 2.3.3.4204@sha256:8061ccda9651601d112dfb1476cc32aa23826e4685c202da56ecb81b218ef491
             env:
-              TZ: ${TZ}
-              LIDARR__INSTANCE_NAME: Lidarr
-              LIDARR__PORT: &port 8686
-              LIDARR__LOG_LEVEL: info
-              LIDARR__AUTHENTICATION_METHOD: External
-              LIDARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
+              LIDARR__AUTH__METHOD: External
+              LIDARR__AUTH__REQUIRED: DisabledForLocalAddresses
             envFrom:
               - secretRef:
                   name: lidarr-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
-                cpu: 10m
-                memory: 1102M
-                ephemeral-storage: "2Gi"
+                cpu: 200m
+                memory: 700Mi
               limits:
-                memory: 1428M
-                ephemeral-storage: "4Gi"
+                memory: 1Gi
     service:
-      main:
+      app:
+        controller: lidarr
         ports:
           http:
-            port: *port
-    metrics:
-      enabled: false
+            port: 8686
+    ingress:
+      app:
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: external.${SECRET_DOMAIN}
+          nginx.ingress.kubernetes.io/auth-method: GET
+          nginx.ingress.kubernetes.io/auth-url: http://authelia.security.svc.cluster.local/api/verify
+          nginx.ingress.kubernetes.io/auth-signin: https://auth.bharris.vip?rm=$request_method
+          nginx.ingress.kubernetes.io/auth-response-headers: Remote-User,Remote-Name,Remote-Groups,Remote-Email
+          nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
+        hosts:
+          - host: lidarr.${SECRET_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
     persistence:
       config:
-        enabled: true
         existingClaim: lidarr-config-v1
       media:
         enabled: true
@@ -94,36 +96,3 @@ spec:
         type: nfs
         server: ${NFS_SERVER}
         path: /volume1/Download
-    ingress:
-      main:
-        enabled: true
-        className: "external"
-        annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-          nginx.ingress.kubernetes.io/auth-method: GET
-          nginx.ingress.kubernetes.io/auth-url: http://authelia.security.svc.cluster.local/api/verify
-          nginx.ingress.kubernetes.io/auth-signin: https://auth.bharris.vip?rm=$request_method
-          nginx.ingress.kubernetes.io/auth-response-headers: Remote-User,Remote-Name,Remote-Groups,Remote-Email
-          nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
-          nginx.ingress.kubernetes.io/configuration-snippet: |
-           proxy_set_header Accept-Encoding "";
-           sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.${SECRET_DOMAIN}/css/base/lidarr/hotline.css"></head>';
-            sub_filter_once on;
-        hosts:
-          - host: &host "lidarr.${SECRET_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  name: main
-                  prot: http
-        tls:
-          - hosts:
-              - *host
-    resources:
-      requests:
-        cpu: 10m
-        memory: 1102M
-        ephemeral-storage: "2Gi"
-      limits:
-        memory: 1428M
-        ephemeral-storage: "4Gi"
