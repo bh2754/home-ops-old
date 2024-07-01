@@ -33,7 +33,7 @@ spec:
       namespace: rook-ceph
   values:
     controllers:
-      lidarr:
+      sonarr:
         annotations:
           reloader.stakater.com/auto: "true"
         pod:
@@ -50,10 +50,11 @@ spec:
               repository: ghcr.io/bh2754/sonarr-develop
               tag: 4.0.5.1801@sha256:b3b878677867452f326cae6d583e82aa9b8c8a918316800feef05d5d62ca24de
             env:
-              SONARR__INSTANCE_NAME: Sonarr
-              SONARR__PORT: &port 8989
-              SONARR__AUTHENTICATION_METHOD: External
-              SONARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
+              SONARR__APP__INSTANCENAME: Sonarr
+              SONARR__SERVER_PORT: &port 8989
+              SONARR__APP__THEME: dark
+              SONARR__AUTH_METHOD: External
+              SONARR__AUTH_REQUIRED: DisabledForLocalAddresses
               SONARR__APPLICATION_URL: "https://sonarr.${SECRET_DOMAIN}"
               SONARR__LOG_LEVEL: info
             envFrom:
@@ -96,13 +97,11 @@ spec:
       config:
         existingClaim: sonarr-config-v1
       media:
-        enabled: true
         type: nfs
         server: "${NFS_SERVER}"
         path: "${NFS_MEDIA}"
         mountPath: /media
       download:
-        enabled: true
         type: nfs
         server: "${NFS_SERVER}"
         path: "${NFS_DOWNLOAD}"
