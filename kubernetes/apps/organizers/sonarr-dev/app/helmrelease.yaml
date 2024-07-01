@@ -60,10 +60,10 @@ spec:
             envFrom:
               - secretRef:
                   name: sonarr-secret
-            resources:
-              requests:
-                cpu: 20m
-                memory: 323M
+#           resources:
+#             requests:
+#               cpu: 20m
+#               memory: 323M
           netshoot:
             image:
               repository: ghcr.io/nicolaka/netshoot
