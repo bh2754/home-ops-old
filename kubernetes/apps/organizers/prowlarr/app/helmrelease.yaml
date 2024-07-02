@@ -92,3 +92,5 @@ spec:
     persistence:
       config:
         existingClaim: prowlarr-config-v1
+        mountPath: /download
+        readOnly: false
