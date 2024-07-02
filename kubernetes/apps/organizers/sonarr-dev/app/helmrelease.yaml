@@ -115,7 +115,7 @@ spec:
 
     persistence:
       config:
-        existingClaim: sonarr-config
+        existingClaim: sonarr-config-v1
       media:
         type: nfs
         server: ${NFS_SERVER}
