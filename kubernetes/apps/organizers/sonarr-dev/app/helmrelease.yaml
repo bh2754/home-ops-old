@@ -116,9 +116,9 @@ spec:
         existingClaim: sonarr-config
       media:
         type: nfs
-        server: "${NFS_SERVER}"
-        path: "${NFS_MEDIA}"
+        server: ${NFS_SERVER}
+        path: ${NFS_MEDIA}
       download:
         type: nfs
-        server: "${NFS_SERVER}"
-        path: "${NFS_DOWNLOAD}"
+        server: ${NFS_SERVER}
+        path: ${NFS_DOWNLOAD}
