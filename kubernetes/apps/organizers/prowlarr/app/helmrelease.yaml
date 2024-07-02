@@ -42,10 +42,6 @@ spec:
             fsGroup: 100
             fsGroupChangePolicy: OnRootMismatch
             seccompProfile: { type: RuntimeDefault }
-          volumeMounts:
-          - name: config
-            mountPath: /config
-            readOnly: false 
         containers:
           app:
             image:
@@ -96,3 +92,7 @@ spec:
     persistence:
       config:
         existingClaim: prowlarr-config
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: false
