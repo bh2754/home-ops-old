@@ -93,4 +93,3 @@ spec:
       config:
         existingClaim: prowlarr-config
         mountPath: /download
-        readOnly: false
