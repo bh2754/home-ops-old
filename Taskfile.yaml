@@ -39,7 +39,7 @@ includes:
   user:
     taskfile: .taskfiles/User
     optional: true
-  vs: .taskfiles/VolSync/Taskfile.yaml
+  vs: .taskfiles/VolSync/Tasks.yaml
 
 tasks:
 

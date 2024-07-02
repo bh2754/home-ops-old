@@ -2,8 +2,8 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: ${job}
-  namespace: ${ns}
+  name: "list-${rsrc}-${ts}"
+  namespace: "${namespace}"
 spec:
   ttlSecondsAfterFinished: 3600
   template:
@@ -11,10 +11,9 @@ spec:
       automountServiceAccountToken: false
       restartPolicy: OnFailure
       containers:
-        - name: main
-          image: docker.io/restic/restic:0.16.4
+        - name: list
+          image: docker.io/restic/restic:0.14.0
           args: ["snapshots"]
           envFrom:
             - secretRef:
-                name: ${app}-restic-secret
-          resources: {}
+                name: "${rsrc}-restic-secret"
