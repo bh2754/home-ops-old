@@ -37,9 +37,9 @@ spec:
             setGateway: "true"
           securityContext:
             runAsNonRoot: true
-            runAsUser: 568
-            runAsGroup: 568
-            fsGroup: 568
+            runAsUser: 1026
+            runAsGroup: 100
+            fsGroup: 100
             fsGroupChangePolicy: OnRootMismatch
             seccompProfile: { type: RuntimeDefault }
         containers:
