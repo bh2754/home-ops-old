@@ -28,7 +28,7 @@ metadata:
   name: prowlarr
   namespace: organizers
 spec:
-  sourcePVC: prowlarr-config-v1
+  sourcePVC: prowlarr-config
   trigger:
     schedule: "0 0 * * *"
   restic:
