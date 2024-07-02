@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 APP=$1
-NAMESPACE="${2:-default}"
-CLUSTER="${3:-default}"
+NAMESPACE=$2  #"${2:-default}"
+CLUSTER=$3    #"${3:-main}"
 
 is_deployment() {
     kubectl --context "${CLUSTER}" -n "${NAMESPACE}" get deployment "${APP}" >/dev/null 2>&1

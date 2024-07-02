@@ -2,8 +2,8 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "wipe-${RSRC}-${CLAIM}-${TS}"
-  namespace: "${NAMESPACE}"
+  name: ${job}
+  namespace: ${ns}
 spec:
   ttlSecondsAfterFinished: 3600
   template:
@@ -11,15 +11,16 @@ spec:
       automountServiceAccountToken: false
       restartPolicy: OnFailure
       containers:
-        - name: wipe
-          image: ghcr.io/onedr0p/alpine:3.17.0@sha256:8e1eb13c3ca5c038f3bf22a5fe9e354867f97f98a78027c44b7c76fce81fa61d
-          command: ["/bin/bash", "-c", "cd /config; find . -delete"]
+        - name: main
+          image: docker.io/library/alpine:latest
+          command: ["/bin/sh", "-c", "cd /config; find . -delete"]
           volumeMounts:
             - name: config
-#             mountPath: /config
+              mountPath: /config
           securityContext:
             privileged: true
+          resources: {}
       volumes:
         - name: config
           persistentVolumeClaim:
-            claimName: "${CLAIM}"
+            claimName: ${claim}
