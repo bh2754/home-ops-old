@@ -118,9 +118,7 @@ spec:
         type: nfs
         server: "${NFS_SERVER}"
         path: "${NFS_MEDIA}"
-        mountPath: /media
       download:
         type: nfs
         server: "${NFS_SERVER}"
         path: "${NFS_DOWNLOAD}"
-        mountPath: /download
