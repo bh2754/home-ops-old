@@ -91,6 +91,6 @@ spec:
                   port: http
     persistence:
       config:
-        existingClaim: prowlarr-config-v1
+        existingClaim: prowlarr-config
         mountPath: /download
         readOnly: false
