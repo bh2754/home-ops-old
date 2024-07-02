@@ -92,4 +92,3 @@ spec:
     persistence:
       config:
         existingClaim: prowlarr-config
-        mountPath: /download
