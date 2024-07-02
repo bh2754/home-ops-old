@@ -92,7 +92,5 @@ spec:
     persistence:
       config:
         existingClaim: prowlarr-config
-        volumeMounts:
-        - name: config
-          mountPath: /config
-          readOnly: false
+        globalMounts:
+          - path: /config
