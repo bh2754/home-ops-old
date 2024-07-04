@@ -39,7 +39,7 @@ spec:
         pod:
           annotations:
             setGateway: "true"
-         securityContext:
+          securityContext:
             runAsNonRoot: true
             runAsUser: 568
             runAsGroup: 568
