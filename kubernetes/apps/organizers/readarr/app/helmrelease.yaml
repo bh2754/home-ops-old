@@ -49,7 +49,7 @@ spec:
           main:
             image:
               repository: ghcr.io/bh2754/readarr-nightly
-              tag: 0.3.31.2578@sha256:c51348487b8f5621cfa915c338a1de11834d1c8fb2e8964e3b3ca1534d82d90b
+              tag: 0.3.32.2585@sha256:012a88cb7b5f37743e76ce739f28235cb416cb5ab12286f894ea386c6a0cdd9b
             env:
               READARR__INSTANCE_NAME: Readarr
               READARR__PORT: &port 80
