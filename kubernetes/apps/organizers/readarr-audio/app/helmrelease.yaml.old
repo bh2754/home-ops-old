@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app readarr
+  name: &app readarr-audio
   namespace: organizers
 spec:
   interval: 15m
@@ -42,24 +42,24 @@ spec:
             setGateway: "true"
           securityContext:
             runAsUser: 568
-            runAsGroup: 568   # was 568 before app template upgrade
-            fsGroup: 568
+            runAsGroup: 100   # was 568 before app template upgrade
+            fsGroup: 100
             fsGroupChangePolicy: "OnRootMismatch"
         containers:
           main:
             image:
               repository: ghcr.io/bh2754/readarr-nightly
-              tag: 0.3.31.2578@sha256:c51348487b8f5621cfa915c338a1de11834d1c8fb2e8964e3b3ca1534d82d90b
+              tag: 0.3.32.2587@sha256:484932c9742e24046eda519f6fecf6ea0b599baae5c6a1651fd27479e0c5fa6a
             env:
-              READARR__INSTANCE_NAME: Readarr
+              READARR__INSTANCE_NAME: Readarr-Audio
               READARR__PORT: &port 80
-#             READARR__AUTHENTICATION_METHOD: External
-#             READARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
+              READARR__AUTH__METHOD: External
+              READARR__AUTH__REQUIRED: DisabledForLocalAddresses
 #             READARR__APPLICATION_URL: "https://audio.${SECRET_DOMAIN}"
               READARR__LOG_LEVEL: info
             envFrom:
               - secretRef:
-                  name: readarr-secret
+                  name: readarr-audio-secret
             resources:
               requests:
                 cpu: 20m
@@ -90,13 +90,13 @@ spec:
 #         nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
           hajimari.io/enable: "true"
           hajimari.io/icon: "book-open-page-variant"
- #        nginx.ingress.kubernetes.io/configuration-snippet: |
- #          proxy_set_header Accept-Encoding "";
- #          sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.${SECRET_DOMAIN}/css/base/readarr/hotline.css"></head>';
- #           sub_filter_once on;
+#         nginx.ingress.kubernetes.io/configuration-snippet: |
+#           proxy_set_header Accept-Encoding "";
+#           sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.${SECRET_DOMAIN}/css/base/readarr/hotline.css"></head>';
+#            sub_filter_once on;
 
         hosts:
-          - host: &host "readarr.${SECRET_DOMAIN}"
+          - host: &host "audio.${SECRET_DOMAIN}"
             paths:
               - path: /
                 service:
@@ -109,13 +109,13 @@ spec:
     persistence:
       config:
         enabled: true
-        existingClaim: readarr-config-v1
-      books:
+        existingClaim: readarr-audio-config-v1
+      audiobooks:
         enabled: true
         type: nfs
         server: &nas "${NFS_SERVER}"
-        path: ${NFS_BOOKS}
-        mountPath: /media
+        path: /volume1/Media/audiobooks
+        mountPath: /audiobooks
       downloads:
         enabled: true
         type: nfs
