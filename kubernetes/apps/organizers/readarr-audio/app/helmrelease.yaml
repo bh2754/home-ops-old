@@ -33,7 +33,7 @@ spec:
       namespace: rook-ceph
   values:
     controllers:
-      readarr:
+      readarr-audio:
         annotations:
           reloader.stakater.com/auto: "true"
         pod:
