@@ -33,7 +33,7 @@ spec:
       namespace: rook-ceph
   values:
     controllers:
-      readarr-audio:
+      readarr:
         annotations:
           reloader.stakater.com/auto: "true"
         pod:
@@ -47,13 +47,13 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
             seccompProfile: { type: RuntimeDefault }
         containers:
-          main:
+          app:
             image:
               repository: ghcr.io/bh2754/readarr-nightly
               tag: 0.3.32.2587@sha256:484932c9742e24046eda519f6fecf6ea0b599baae5c6a1651fd27479e0c5fa6a
             env:
               COMPlus_EnableDiagnostics: "0"
-              READARR__INSTANCE_NAME: Readarr-Audio
+              READARR__INSTANCE_NAME: Readarr
               READARR__PORT: &port 80
               READARR__AUTH__METHOD: External
               READARR__AUTH__REQUIRED: DisabledForLocalAddresses
@@ -61,6 +61,7 @@ spec:
             envFrom:
               - secretRef:
                   name: readarr-audio-secret
+
             probes:
               liveness:
                 enabled: true
@@ -75,6 +76,8 @@ spec:
               requests:
                 cpu: 20m
                 memory: 512M
+              limits:
+                memory: 768M
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -114,7 +117,7 @@ spec:
         type: nfs
         server: ${NFS_SERVER}
         path: /volume1/Media/audiobooks
-     download:
+      download:
         type: nfs
         server: ${NFS_SERVER}
         path: ${NFS_DOWNLOAD}
