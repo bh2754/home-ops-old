@@ -50,7 +50,7 @@ spec:
           app:
             image:
               repository: ghcr.io/bh2754/readarr-nightly
-              tag: 0.4.0.2588@sha256:05fd9b272faafab17242812faaec8190b5b1cc33767a56dd764b769fa30e613e
+              tag: 0.3.31.2578@sha256:c51348487b8f5621cfa915c338a1de11834d1c8fb2e8964e3b3ca1534d82d90b
             env:
               COMPlus_EnableDiagnostics: "0"
               READARR__INSTANCE_NAME: Readarr
