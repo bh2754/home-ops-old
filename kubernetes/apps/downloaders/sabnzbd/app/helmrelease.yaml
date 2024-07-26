@@ -106,7 +106,7 @@ spec:
               port: http
     persistence:
       config:
-        existingClaim: *app
+        existingClaim: sabnzbd-config-v1
       downloads:
         type: nfs
         server: ${NFS_SERVER}
