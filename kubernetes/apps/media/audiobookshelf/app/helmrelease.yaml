@@ -1,11 +1,12 @@
----  #
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: audiobookshelf
   namespace: media
 spec:
-  interval: 15m
+  interval: 30m
   chart:
     spec:
       chart: app-template
@@ -14,58 +15,74 @@ spec:
         kind: HelmRepository
         name: bjw-s
         namespace: flux-system
-  maxHistory: 3
   install:
-    createNamespace: true
     remediation:
       retries: 3
   upgrade:
     cleanupOnFail: true
     remediation:
+      strategy: rollback
       retries: 3
-  uninstall:
-    keepHistory: false
+  dependsOn:
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+    - name: volsync
+      namespace: volsync-system
   values:
     controllers:
-      main:
+      audiobookshelf:
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 568
+            runAsGroup: 568
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile: { type: RuntimeDefault }
         containers:
-          audiobookshelf:
+          app:
             image:
               repository: ghcr.io/advplyr/audiobookshelf
-              tag: 2.11.0
+              tag: 2.11.0@sha256:725c287ac1b56f8115dfc7fca75d8490976af59466f893fbf344711bd117f8cb
             env:
-              TZ: "${TIMEZONE}"
               AUDIOBOOKSHELF_UID: 568
               AUDIOBOOKSHELF_GID: 568
               CONFIG_PATH: /config
               METADATA_PATH: /config/metadata
-
             probes:
-              liveness:
+              liveness: &probes
                 enabled: true
-              readiness:
-                enabled: true
-              startup:
-                enabled: true
+                custom: true
                 spec:
-                  failureThreshold: 30
-                  periodSeconds: 5
+                  httpGet:
+                    path: /healthcheck
+                    port: &port 80
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+                memory: 150Mi
+              limits:
+                memory: 300Mi
     service:
       app:
         controller: audiobookshelf
         ports:
           http:
-            port: 80
+            port: *port
     ingress:
-      main:
+      app:
         className: external
         annotations:
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
-          nginx.ingress.kubernetes.io/auth-method: GET
-          nginx.ingress.kubernetes.io/auth-url: http://authelia.security.svc.cluster.local/api/verify
-          nginx.ingress.kubernetes.io/auth-signin: https://auth.bharris.vip?rm=$request_method
-          nginx.ingress.kubernetes.io/auth-response-headers: Remote-User,Remote-Name,Remote-Groups,Remote-Email
-          nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
+          external-dns.alpha.kubernetes.io/target: external.${DOMAIN}
         hosts:
           - host: abs.${SECRET_DOMAIN}
             paths:
@@ -75,14 +92,15 @@ spec:
                   port: http
     persistence:
       config:
-        enabled: true
-        mountPath: /config
-        existingClaim: abs-config-v1
+        existingClaim: audiobookshelf-config-v1
       cache:
         type: emptyDir
-#        globalMounts:
-#          - path: /.npm
+        globalMounts:
+          - path: /.npm
       media:
         type: nfs
         server: ${NFS_SERVER}
-        path: ${NFS_MEDIA}/audiobooks
+        path: ${NFS_MEDIA}
+        globalMounts:
+          - path: /media
+            readOnly: true
