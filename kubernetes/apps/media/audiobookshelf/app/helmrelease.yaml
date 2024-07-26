@@ -80,8 +80,8 @@ spec:
         existingClaim: abs-config-v1
       cache:
         type: emptyDir
-        globalMounts:
-          - path: /.npm
+#        globalMounts:
+#          - path: /.npm
       media:
         type: nfs
         server: ${NFS_SERVER}
