@@ -75,8 +75,6 @@ spec:
               requests:
                 cpu: 100m
                 memory: 100Mi
-              limits:
-                memory: 500Mi
     service:
       app:
         controller: audiobookshelf
@@ -84,8 +82,7 @@ spec:
           http:
             port: *port
     ingress:
-      main:
-        enabled: true
+      app:
         className: "external"
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
@@ -95,11 +92,11 @@ spec:
           nginx.ingress.kubernetes.io/auth-response-headers: Remote-User,Remote-Name,Remote-Groups,Remote-Email
           nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
         hosts:
-          - host: &host "abs.${SECRET_DOMAIN}"
+          - host: "abs.${SECRET_DOMAIN}"
             paths:
               - path: /
                 service:
-                  indentifier: main
+                  identifier: main
                   port: http
     persistence:
       config:
