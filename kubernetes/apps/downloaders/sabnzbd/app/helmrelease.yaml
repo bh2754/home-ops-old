@@ -51,7 +51,6 @@ metadata:
             image:
               repository: ghcr.io/bh2754/sabnzbd
               tag: 4.3.2@sha256:6e68583024a35e168c80170cb6e6ac0650220dc9cea33ba26abc23bd67bf3e0e
-              pullPolicy: IfNotPresent
             env:
               TZ: "${TZ}"
               SABNZBD__PORT: &port 8080
@@ -64,37 +63,28 @@ metadata:
                 sabnzbd.default.svc.cluster,
                 sabnzbd.default.svc.cluster.local,
                 sabnzbd.${SECRET_DOMAIN}
-
            envFrom:
               - secretRef:
                   name: sabnzbd-secret
-            probes:
-              liveness: &probes
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /api?mode=version
-                    port: *port
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 3
-              readiness: *probes
-              startup:
-                enabled: false
-            resources:
-              requests:
-                cpu: 10m
-                memory: 249M
-        pod:
-          annotations:
-            setGateway: "true"
-          securityContext:
-            runAsUser: 568
-            runAsGroup: 568
-            fsGroup: 568
-            fsGroupChangePolicy: OnRootMismatch
+           probes:
+             liveness: &probes
+               enabled: true
+               custom: true
+               spec:
+                 httpGet:
+                   path: /api?mode=version
+                   port: *port
+                 initialDelaySeconds: 0
+                 periodSeconds: 10
+                 timeoutSeconds: 1
+                 failureThreshold: 3
+             readiness: *probes
+             startup:
+               enabled: false
+           resources:
+             requests:
+               cpu: 10m
+               memory: 249M
 
     service:
       app:
