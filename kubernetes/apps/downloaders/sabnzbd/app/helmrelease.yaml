@@ -92,7 +92,7 @@ spec:
 
     service:
       app:
-        controller: sabzndb
+        controller: sabnzbd
         ports:
           http:
             port: *port
