@@ -71,7 +71,7 @@ spec:
             paths:
               - path: /
                 service:
-                  identifier: app
+                  identifier: audiobookshelf
                   port: http
     persistence:
       config:
