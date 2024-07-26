@@ -51,7 +51,7 @@ spec:
                   failureThreshold: 30
                   periodSeconds: 5
     service:
-      main:
+      app:
         controller: audiobookshelf
         ports:
           http:
@@ -71,7 +71,7 @@ spec:
             paths:
               - path: /
                 service:
-                  identifier: audiobookshelf
+                  identifier: app
                   port: http
     persistence:
       config:
