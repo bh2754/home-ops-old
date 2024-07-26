@@ -103,15 +103,12 @@ spec:
                   port: http
     persistence:
       config:
-        enabled: true
         existingClaim: abs-config-v1
       cache:
-        enabled: true
         type: emptyDir
         globalMounts:
           - path: /.npm
       media:
-        enabled: true
         type: nfs
         server: ${NFS_SERVER}
         path: ${NFS_MEDIA}/audiobooks
