@@ -4,7 +4,7 @@ kind: HelmRelease
 metadata:
   name: sabnzbd
   namespace: downloaders
- spec:
+spec:
   interval: 30m
   chart:
     spec:
@@ -51,6 +51,7 @@ metadata:
             image:
               repository: ghcr.io/bh2754/sabnzbd
               tag: 4.3.2@sha256:6e68583024a35e168c80170cb6e6ac0650220dc9cea33ba26abc23bd67bf3e0e
+              pullPolicy: IfNotPresent
             env:
               TZ: "${TZ}"
               SABNZBD__PORT: &port 8080
@@ -63,39 +64,41 @@ metadata:
                 sabnzbd.default.svc.cluster,
                 sabnzbd.default.svc.cluster.local,
                 sabnzbd.${SECRET_DOMAIN}
-           envFrom:
+            envFrom:
               - secretRef:
                   name: sabnzbd-secret
-           probes:
-             liveness: &probes
-               enabled: true
-               custom: true
-               spec:
-                 httpGet:
-                   path: /api?mode=version
-                   port: *port
-                 initialDelaySeconds: 0
-                 periodSeconds: 10
-                 timeoutSeconds: 1
-                 failureThreshold: 3
-             readiness: *probes
-             startup:
-               enabled: false
-           resources:
-             requests:
-               cpu: 10m
-               memory: 249M
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+            resources:
+              requests:
+                cpu: 20m
+                memory: 512M
+              limits:
+                memory: 768M
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
 
     service:
       app:
-        controller: sabnzbd
+        controller: sabzndb
         ports:
           http:
             port: *port
 
     ingress:
-      main:
-        enabled: true
+      app:
         className: "external"
         annotations:
           external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
@@ -104,29 +107,22 @@ metadata:
           nginx.ingress.kubernetes.io/auth-signin: https://auth.bharris.vip?rm=$request_method
           nginx.ingress.kubernetes.io/auth-response-headers: Remote-User,Remote-Name,Remote-Groups,Remote-Email
           nginx.ingress.kubernetes.io/auth-snippet: proxy_set_header X-Forwarded-Method $request_method;
-#         nginx.ingress.kubernetes.io/configuration-snippet: |-
-#           proxy_set_header Accept-Encoding "";
-#           sub_filter '</head>' '<link rel="stylesheet" type="text/css" href="https://theme-park.${SECRET_DOMAIN}/css/base/sabnzbd/hotline.css"></head>';
-#           sub_filter_once on;
-#        theme: "hotline"
         hosts:
-          - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - host: sabnzbd.${SECRET_DOMAIN}
             paths:
               - path: /
                 service:
-                  identifier: main
+                  identifier: app
                   port: http
 
     persistence:
       config:
-        enabled: true
         existingClaim: sabnzbd-config-v1
       media:
-        enabled: true
         type: nfs
-        server: "${NFS_SERVER}"
+        server: ${NFS_SERVER}
         path: ${NFS_MEDIA}
       download:
-        enabled: true
         type: nfs
-        server: "${NFS_SERVER}"
+        server: ${NFS_SERVER}
+        path: ${NFS_DOWNLOAD}
