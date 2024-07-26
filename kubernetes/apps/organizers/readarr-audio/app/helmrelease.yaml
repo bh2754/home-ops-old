@@ -63,21 +63,25 @@ spec:
                   name: readarr-audio-secret
 
             probes:
-              liveness:
+              liveness: &probes
                 enabled: true
-              readiness:
-                enabled: true
-              startup:
-                enabled: true
+                custom: true
                 spec:
-                  failureThreshold: 30
-                  periodSeconds: 5
+                  httpGet:
+                    path: /ping
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
+
             resources:
               requests:
                 cpu: 20m
                 memory: 512M
-              limits:
-                memory: 768M
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
