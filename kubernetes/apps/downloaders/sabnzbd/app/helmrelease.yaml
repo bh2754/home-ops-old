@@ -107,8 +107,8 @@ spec:
         existingClaim: sabnzbd-config-v1
       downloads:
         type: nfs
-        server: ${NFS_SERVER}
-        path: ${NFS_DOWNLOAD}
+        server: 10.0.109.29
+        path: /volume1/Download
       logs:
         type: emptyDir
         globalMounts:
