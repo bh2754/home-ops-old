@@ -8,7 +8,7 @@ resources:
 #  - ./nzbhydra2/ks.yaml
    - ./prowlarr/ks.yaml
    - ./radarr/ks.yaml
-   - ./readarr-audio/ks.yaml
+#  - ./readarr-audio/ks.yaml
 #  - ./readarr/ks.yaml
 ## - ./sonarr/ks.yaml
    - ./sonarr-dev/ks.yaml
